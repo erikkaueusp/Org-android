@@ -2,10 +2,16 @@ package com.example.orgs.ui.activity
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import coil.load
+import com.example.orgs.R
 import com.example.orgs.dao.ProdutoDao
 import com.example.orgs.databinding.ActivityListaProdutoBinding
+import com.example.orgs.databinding.FormularioImagemBinding
+import com.example.orgs.ui.dialog.FormularioImagemDialog
 import com.example.orgs.ui.recycleview.adapter.ListaProdutoAdapter
 
 class ListaProdutosActivity : AppCompatActivity() {
@@ -19,9 +25,14 @@ class ListaProdutosActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        title="App de listas"
         super.onCreate(savedInstanceState)
-        configuraRecyclerView()
         setContentView(binding.root)
+        configuraRecyclerView()
+        configuraFab()
+//        FormularioImagemDialog(this).mostra { imagem ->
+//            Log.i("ListaProdutosActivity", "onCreate: $imagem")
+//        }
 //        val view = TextView(this)
 //        view.setText("Aqui é um texto de uma textview")
 ////        Toast.makeText(this, "Isso aqui é um Toast", Toast.LENGTH_SHORT).show() // só um hello world para android
@@ -36,7 +47,6 @@ class ListaProdutosActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         adapter.atualiza(dao.buscaTodos())
-        configuraFab()
     }
 
     private fun configuraFab() {
@@ -55,5 +65,18 @@ class ListaProdutosActivity : AppCompatActivity() {
         val recycleView = binding.list
         recycleView.adapter = adapter
         recycleView.layoutManager = LinearLayoutManager(this)
+
+        // implementação do listener para abrir a Activity de detalhes do produto
+        // com o produto clicado
+        adapter.quandoClicaNoItem = {
+            val intent = Intent(
+                this,
+                DetalheProdutoActivity::class.java
+            ).apply {
+                // envio do produto por meio do extra
+                putExtra(CHAVE_PRODUTO, it)
+            }
+            startActivity(intent)
+        }
     }
 }
